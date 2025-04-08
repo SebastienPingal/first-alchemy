@@ -24,4 +24,14 @@ defmodule TestelixirWeb.Router do
       live_dashboard "/dashboard", metrics: TestelixirWeb.Telemetry
     end
   end
+
+  scope "/api" do
+    pipe_through :api
+
+    forward "/graphql", Absinthe.Plug, schema: TestelixirWeb.Schema
+
+    forward "/graphiql", Absinthe.Plug.GraphiQL,
+      schema: TestelixirWeb.Schema,
+      interface: :playground
+  end
 end
