@@ -12,10 +12,12 @@ defmodule Testelixir.Application do
       Testelixir.Repo,
       {DNSCluster, query: Application.get_env(:testelixir, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: Testelixir.PubSub},
+      # Start to serve requests
+      TestelixirWeb.Endpoint,
+      # Start Absinthe subscription (after Endpoint)
+      {Absinthe.Subscription, TestelixirWeb.Endpoint}
       # Start a worker by calling: Testelixir.Worker.start_link(arg)
       # {Testelixir.Worker, arg},
-      # Start to serve requests, typically the last entry
-      TestelixirWeb.Endpoint
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

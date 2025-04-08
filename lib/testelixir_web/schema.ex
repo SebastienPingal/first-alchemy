@@ -91,7 +91,14 @@ defmodule TestelixirWeb.Schema do
 
       resolve(fn _, args, _ ->
         case Testelixir.Chatroom.create_message(args) do
-          {:ok, message} -> {:ok, message}
+          {:ok, message} ->
+            # Publish the subscription after creating the message
+            Absinthe.Subscription.publish(
+              TestelixirWeb.Endpoint,
+              message,
+              message_created: message.user_id
+            )
+            {:ok, message}
           {:error, changeset} -> {:error, changeset}
         end
       end)
@@ -102,8 +109,35 @@ defmodule TestelixirWeb.Schema do
       arg(:id, :id)
 
       resolve(fn _, args, _ ->
-        {:ok, Testelixir.Chatroom.delete_message(args.id)}
+        case Testelixir.Chatroom.get_message!(args.id) do
+          nil ->
+            {:error, "Message not found"}
+
+          message ->
+            Testelixir.Chatroom.delete_message(message)
+        end
       end)
+    end
+  end
+
+  subscription do
+    field :message_created, :message do
+      arg(:user_id, :id)
+
+      # Config defines what topic a client will be subscribed to
+      config fn args, _ ->
+        {:ok, topic: args.user_id}
+      end
+
+      # Define how subscription is triggered
+      trigger :create_message, topic: fn message ->
+        message.user_id
+      end
+
+      # Optional resolver to transform the payload
+      resolve fn message, _, _ ->
+        {:ok, message}
+      end
     end
   end
 end

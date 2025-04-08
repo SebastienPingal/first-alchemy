@@ -32,6 +32,7 @@ defmodule TestelixirWeb.Router do
 
     forward "/graphiql", Absinthe.Plug.GraphiQL,
       schema: TestelixirWeb.Schema,
-      interface: :playground
+      interface: :playground,
+      socket: TestelixirWeb.UserSocket
   end
 end

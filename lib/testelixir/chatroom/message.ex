@@ -14,5 +14,6 @@ defmodule Testelixir.Chatroom.Message do
     message
     |> cast(attrs, [:content, :user_id])
     |> validate_required([:content, :user_id])
+    |> foreign_key_constraint(:user_id, name: "messages_user_id_fkey", message: "User does not exist")
   end
 end
